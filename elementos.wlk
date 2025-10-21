@@ -1,31 +1,47 @@
 class Hogar {
-  const nivelDeMugre
+  var nivelDeMugre
   const confort
 
   method esBueno() = (nivelDeMugre == confort / 2) 
 
+  method esAtacadoPor(unaPlaga) {
+    nivelDeMugre += unaPlaga.nivelDeDanio()
+    unaPlaga.atacarElemento()
+  }
+
 }
 
 class Huerta {
-  const capacidadDeProduccion
-  var nivelDeProduccion
+  var capacidadDeProduccion
 
-  method esBueno() = capacidadDeProduccion > nivelDeProduccion
+  method esBueno() = capacidadDeProduccion > nivelMinimo.valor()
 
-  method cambiarNivelDeProduccion(nuevoNivel) {
-    nivelDeProduccion = nuevoNivel
+  method esAtacadoPor(unaPlaga) {
+    capacidadDeProduccion = 0.max(capacidadDeProduccion - (unaPlaga.nivelDeDanio() * 0.1))
+    capacidadDeProduccion = 0.max(capacidadDeProduccion - if (unaPlaga.transmiteEnfermedad()) 10 else 0)
+    unaPlaga.atacarElemento()
   }
+
+}
+
+object nivelMinimo {
+  var property valor = 100
 }
 
 class Mascota {
-  const nivelDeSalud
+  var nivelDeSalud
 
   method esBueno() = nivelDeSalud > 250
+
+  method esAtacadoPor(unaPlaga) {
+    nivelDeSalud = 0.max(nivelDeSalud - if (unaPlaga.transmiteEnfermedad()) unaPlaga.nivelDeDanio() else 0 )
+    unaPlaga.atacarElemento()
+  }
 }
 
 
 class Barrio {
-  var elementos = []
+  const elementos = []
 
   method elementos() = elementos
 
@@ -36,4 +52,10 @@ class Barrio {
   method sacarElemento(unElemento) {
     elementos.remove(unElemento)
   }
+
+  method losBuenos() = elementos.filter({ e => e.esBueno() })
+
+  method losMalos() = elementos.filter({ e => not e.esBueno() })
+
+  method esCopado() = self.losBuenos().size() > self.losMalos().size()
 }
